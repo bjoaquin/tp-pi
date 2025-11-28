@@ -33,5 +33,5 @@ def leer_dados_en_video(filename_in):
 
 # Ejemplo de uso
 if __name__ == "__main__":
-    filename_in = 'tirada_1.mp4'
+    filename_in = 'tirada_6.mp4'
     leer_dados_en_video('./input/' + filename_in)

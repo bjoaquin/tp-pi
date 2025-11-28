@@ -52,10 +52,12 @@ def leer_dados_en_imagen(img):
         # Obtener rectangulo correspondiente al i-esimo objeto (potencialmente, un dado)
         (x, y), (w, h), _ = cv2.minAreaRect(contour[0])
         aspect_ratio = w/h
+        comp_to_box_ratio = stats[i][4] / (w*h)
 
         # Retener dados y descartar lo demas
         # [Regla: si (2000 < area < 6000) y (0.8 < aspect_ratio < 1.15), es dado]
-        if 2000 < stats[i][4] < 6000 and 0.8 < aspect_ratio < 1.15:
+        #if 2000 < stats[i][4] < 6000 and 0.8 < aspect_ratio < 1.15:
+        if 2000 < stats[i][4] < 6000 and comp_to_box_ratio > 0.85:
             mask_dados += obj
 
     # Aplicar mascara de dados sobre el canal azul
@@ -66,10 +68,11 @@ def leer_dados_en_imagen(img):
 
     # Clausura para rellenar los pips
     img_valores_close = cv2.morphologyEx(img_dados_th, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (10,10)))
+    img_valores_open = cv2.morphologyEx(img_valores_close, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5,5)))
 
     # Eliminar pips laterales (pequeños)
-    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(img_valores_close)
-    img_valores_clean = img_valores_close.copy()
+    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(img_valores_open)
+    img_valores_clean = img_valores_open.copy()
     for i in range(1, num_labels):
         area = stats[i][4]
         if(area < 30):
